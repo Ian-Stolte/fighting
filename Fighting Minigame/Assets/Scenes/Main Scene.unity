@@ -4369,6 +4369,78 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 936415803}
   m_CullTransparentMesh: 1
+--- !u!1 &945450725
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 945450727}
+  - component: {fileID: 945450726}
+  m_Layer: 0
+  m_Name: Audio Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &945450726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 945450725}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd363d278798d46b2a5dc3b1e766d95b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  music: []
+  sfx:
+  - name: click
+    clip: {fileID: 8300000, guid: d51139563b90d4c95a03dcade97775e8, type: 3}
+    volume: 0.1
+    pitch: 1
+    loop: 0
+    source: {fileID: 0}
+  - name: punch
+    clip: {fileID: 8300000, guid: 617f39575f80f4f19bc02e013c032255, type: 3}
+    volume: 0.7
+    pitch: 0.6
+    loop: 0
+    source: {fileID: 0}
+  - name: kick
+    clip: {fileID: 8300000, guid: 6be1b7329157f4a72a25a37ce7b1c92b, type: 3}
+    volume: 0.8
+    pitch: 0.8
+    loop: 0
+    source: {fileID: 0}
+  - name: block
+    clip: {fileID: 8300000, guid: 5761608ff470f4c2b93db045ff65c300, type: 3}
+    volume: 0.6
+    pitch: 0.8
+    loop: 0
+    source: {fileID: 0}
+  audios: []
+  currentSong: 
+--- !u!4 &945450727
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 945450725}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 801.06366, y: 327.1196, z: -2.9009912}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &958088707
 GameObject:
   m_ObjectHideFlags: 0
@@ -6861,6 +6933,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79b24dc6c127e44409acaab2a23b1071, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fightNum: 3
   winColor:
     serializedVersion: 2
     rgba: 4281564728
@@ -9926,6 +9999,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 519420032}
+  - {fileID: 945450727}
   - {fileID: 1456396072}
   - {fileID: 444647112}
   - {fileID: 696268229}

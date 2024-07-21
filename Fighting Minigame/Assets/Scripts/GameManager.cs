@@ -5,16 +5,19 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    private int fightNum;
+    [SerializeField] private int fightNum;
     private int moveNum;
+    
     private int[] moves1 = new int[]{1, 1, 2, 1, 2};
-    private int[] moves2 = new int[]{1, 3, 2, 3, 1, 1, 3, 2, 2, 2};
+    private int[] moves2 = new int[]{1, 3, 2, 3, 1, 1, 3, 2};
+    private bool hasKicked;
+    
     private List<int> moves = new List<int>();
-    private int[] fightLengths = new int[]{5, 10, 6};
-    private string[] fightStart = new string[]{"\"Hey, this is my first fight, so go easy on me!\"", "Your opponent just stares at you.", "\"Good luck.\""};
-    private string[] victory/*enemy victory*/ = new string[]{"\"Yay, I won!\"", "She leaves without a word.", "\"Good fight.\""};
-    private string[] defeat/*enemy defeat*/ = new string[]{"\"Aww, that was mean!\"", "She leaves without a word.", "\"Impressive. Thank you.\""};
-    private string[] pronouns = new string[]{"He", "She", "He"};
+    private int[] fightLengths = new int[]{5, 8, 6, 10};
+    private string[] fightStart = new string[]{"\"Hey, this is my first fight, so go easy on me!\"", "Your opponent just stares at you.", "Your opponent bows:** \"Good luck.\"", "\"I won't kick if you don't, alright?\""};
+    private string[] victory/*enemy victory*/ = new string[]{"\"Yay, I won!\"", "She leaves without a word.", "\"Good fight.\"", "\"Guess the mind games worked...\""};
+    private string[] defeat/*enemy defeat*/ = new string[]{"\"Aww, that was mean!\"", "She leaves without a word.", "\"Impressive.* Thank you for the fight.\"", "<sigh>*** \"You're too good.\""};
+    private string[] pronouns = new string[]{"He", "She", "He", "They"};
 
     private int playerScore;
     private TMPro.TextMeshProUGUI playerScoreTxt;
@@ -61,7 +64,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator RestartCor(bool progress)
     {
-        nextFight.SetActive(false);
+        //nextFight.SetActive(false);
         if (moveNum == 0)
         {
             GameObject.Find("Fader").GetComponent<Animator>().Play("FadeIn");
@@ -108,6 +111,7 @@ public class GameManager : MonoBehaviour
         enemyScoreTxt.text = "" + enemyScore;
         moveTxt.GetComponent<TMPro.TextMeshProUGUI>().text = "Move:  " + 1 + " / " + fightLengths[fightNum];
         enemyTxt.GetComponent<CanvasGroup>().alpha = 0;
+        hasKicked = false;
         StartCoroutine(PlayDialogue(fightStart[fightNum]));
     }
 
@@ -128,10 +132,26 @@ public class GameManager : MonoBehaviour
             else
                 moves.Add(3);
         }
+        else if (fightNum == 3)
+        {
+            if (!hasKicked)
+            {
+                if (wonLast || moveNum == 0)
+                    moves.Add(1);
+                else
+                    moves.Add(3);
+            }
+            else
+            {
+                moves.Add(2);
+                hasKicked = false;
+            }
+        }
     }
 
     public void ChooseMove(int n)
     {
+        GameObject.Find("Audio Manager").GetComponent<AudioManager>().Play(IntToStr(n));
         EnemyMove();
         if (n%3 + 1 == moves[moveNum])
         {
@@ -151,6 +171,8 @@ public class GameManager : MonoBehaviour
             playerBoxes.transform.GetChild(moveNum).GetChild(1).GetComponent<Image>().color = loseColor;
             enemyBoxes.transform.GetChild(moveNum).GetChild(1).GetComponent<Image>().color = winColor;
         }
+        if (n == 2)
+            hasKicked = true;
         playerBoxes.transform.GetChild(moveNum).GetChild(2).GetComponent<TMPro.TextMeshProUGUI>().text = IntToChar(n);
         enemyBoxes.transform.GetChild(moveNum).GetChild(2).GetComponent<TMPro.TextMeshProUGUI>().text = IntToChar(moves[moveNum]);
         moveNum++;
@@ -240,6 +262,8 @@ public class GameManager : MonoBehaviour
         narrativeTxt.text = "";
         foreach (char c in line)
         {
+            if (Random.Range(0.0f, 1.0f) > 0.3f)
+                GameObject.Find("Audio Manager").GetComponent<AudioManager>().Play("click");
             if (c != '*')
                 narrativeTxt.text += c;
 
