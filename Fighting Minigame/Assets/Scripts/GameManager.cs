@@ -7,17 +7,16 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private int fightNum;
     private int moveNum;
-    
     private int[] moves1 = new int[]{1, 1, 2, 1, 2};
     private int[] moves2 = new int[]{1, 3, 2, 3, 1, 1, 3, 2};
-    private bool hasKicked;
     
     private List<int> moves = new List<int>();
-    private int[] fightLengths = new int[]{5, 8, 6, 10};
-    private string[] fightStart = new string[]{"\"Hey, this is my first fight, so go easy on me!\"", "Your opponent just stares at you.", "Your opponent bows:** \"Good luck.\"", "\"I won't kick if you don't, alright?\""};
-    private string[] victory/*enemy victory*/ = new string[]{"\"Yay, I won!\"", "She leaves without a word.", "\"Good fight.\"", "\"Guess the mind games worked...\""};
-    private string[] defeat/*enemy defeat*/ = new string[]{"\"Aww, that was mean!\"", "She leaves without a word.", "\"Impressive.* Thank you for the fight.\"", "<sigh>*** \"You're too good.\""};
-    private string[] pronouns = new string[]{"He", "She", "He", "They"};
+    private int[] fightLengths = new int[]{5, 8, 6, 10, 5};
+    private string[] fightStart = new string[]{"\"Hey, this is my first fight, so go easy on me!\"", "Your opponent just stares at you.", "Your opponent bows:** \"Good luck.\"", "\"I won't kick if you don't, alright?\"", "Your opponent is making faces.*** Perhaps to distract you?"};
+    private string[] victory/*enemy victory*/ = new string[]{"\"Yay, I won!\"", "She leaves without a word.", "\"Good fight.\"", "\"Guess the mind games worked...\"", "She laughs and skips away."};
+    private string[] defeat/*enemy defeat*/ = new string[]{"\"Aww, that was mean!\"", "She leaves without a word.", "\"Impressive.* Thank you for the fight.\"", "<sigh>*** \"You're too good.\"", "She sticks her tongue out at you."};
+    private string[] perfect/*enemy wins 0 rounds*/ = new string[]{"\"That was extra mean!!\"", "She limps away, eyes downcast.", "\"You are a true master*.*.*.* thank you for the humbling.\"", "\"What the hell?!** It's like you knew exactly what I was going to do!\"", "You see that she is now crying."};
+    private string[] pronouns = new string[]{"He", "She", "He", "They", "She"};
 
     private int playerScore;
     private TMPro.TextMeshProUGUI playerScoreTxt;
@@ -38,9 +37,14 @@ public class GameManager : MonoBehaviour
     public GameObject moveBoxPrefab;
     private GameObject enemyBoxes;
     private GameObject playerBoxes;
+    [SerializeField] private GameObject endScreen;
     private TMPro.TextMeshProUGUI narrativeTxt;
 
+    private bool hasKicked;
     private bool wonLast; //whether enemy won the last round
+
+    private IEnumerator dialogueCor;
+
 
     void Start()
     {
@@ -64,7 +68,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator RestartCor(bool progress)
     {
-        //nextFight.SetActive(false);
+        nextFight.SetActive(false);
         if (moveNum == 0)
         {
             GameObject.Find("Fader").GetComponent<Animator>().Play("FadeIn");
@@ -77,11 +81,17 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.5f);
         }
         //When you move to the next fight
+        endScreen.SetActive(false);
         if (progress)
         {
             fightNum++;
-            fightTxt.GetComponent<TMPro.TextMeshProUGUI>().text = "Fight:  " + (fightNum+1);
+            if (fightNum >= fightLengths.Length)
+            {
+                fightNum = 0;
+                endScreen.SetActive(true);
+            }
         }
+        fightTxt.GetComponent<TMPro.TextMeshProUGUI>().text = "Fight:  " + (fightNum+1);
         //Recreate move boxes
         foreach (Transform child in playerBoxes.transform)
         {
@@ -112,9 +122,18 @@ public class GameManager : MonoBehaviour
         moveTxt.GetComponent<TMPro.TextMeshProUGUI>().text = "Move:  " + 1 + " / " + fightLengths[fightNum];
         enemyTxt.GetComponent<CanvasGroup>().alpha = 0;
         hasKicked = false;
-        StartCoroutine(PlayDialogue(fightStart[fightNum]));
+        if (!endScreen.activeSelf)
+        {
+            if (dialogueCor != null)
+                StopCoroutine(dialogueCor);
+            dialogueCor = PlayDialogue(fightStart[fightNum]);
+            StartCoroutine(dialogueCor);
+        }
     }
 
+    ///////////////////////
+    //Enemy move patterns//
+    ///////////////////////
     private void EnemyMove()
     {
         if (fightNum == 0)
@@ -146,6 +165,20 @@ public class GameManager : MonoBehaviour
                 moves.Add(2);
                 hasKicked = false;
             }
+        }
+        else if (fightNum == 4)
+        {
+            //P, P, K, P, B or K, K, B, K, P
+            if (moveNum == 0)
+                moves.Add(Random.Range(1, 3)); //kick or punch
+            else if (moveNum == 1)
+                moves.Add(moves[0]); //then do the same thing
+            else if (moveNum == 2)
+                moves.Add(moves[0]+1); //then swap: punch --> kick, kick --> block
+            else if (moveNum == 3)
+                moves.Add(moves[0]); //back to the first
+            else
+                moves.Add((moves[0]+1)%3+1); //play the last unplayed option: punch --> block, kick --> punch
         }
     }
 
@@ -246,13 +279,26 @@ public class GameManager : MonoBehaviour
         if (playerScore > enemyScore)
         {
             enemyTxt.GetComponent<TMPro.TextMeshProUGUI>().text = "<b>You  Won!</b>";
-            StartCoroutine(PlayDialogue(defeat[fightNum]));
+            if (enemyScore == 0)
+            {
+                StopCoroutine(dialogueCor);
+                dialogueCor = PlayDialogue(perfect[fightNum]);
+                StartCoroutine(dialogueCor);
+            }
+            else
+            {
+                StopCoroutine(dialogueCor);
+                dialogueCor = PlayDialogue(defeat[fightNum]);
+                StartCoroutine(dialogueCor);
+            }
             nextFight.SetActive(true);
         }
         else
         {
             enemyTxt.GetComponent<TMPro.TextMeshProUGUI>().text = "<b>You  Lost</b>";
-            StartCoroutine(PlayDialogue(victory[fightNum]));
+            StopCoroutine(dialogueCor);
+            dialogueCor = PlayDialogue(victory[fightNum]);
+            StartCoroutine(dialogueCor);
         }
         enemyTxt.GetComponent<CanvasGroup>().alpha = 1;
     }
