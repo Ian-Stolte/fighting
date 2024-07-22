@@ -9,6 +9,9 @@ public class GameManager : MonoBehaviour
     private int moveNum;
     private int[] moves1 = new int[]{1, 1, 2, 1, 2};
     private int[] moves2 = new int[]{1, 3, 2, 3, 1, 1, 3, 2};
+    private int[] moves5Punch = new int[]{1, 1, 2, 1, 3};
+    private int[] moves5Kick = new int[]{2, 2, 3, 2, 1};
+    private int[] moves5;
     
     private List<int> moves = new List<int>();
     private int[] fightLengths = new int[]{5, 8, 6, 10, 5};
@@ -41,6 +44,7 @@ public class GameManager : MonoBehaviour
     private TMPro.TextMeshProUGUI narrativeTxt;
 
     private bool hasKicked;
+    private int startingMove;
     private bool wonLast; //whether enemy won the last round
 
     private IEnumerator dialogueCor;
@@ -168,17 +172,21 @@ public class GameManager : MonoBehaviour
         }
         else if (fightNum == 4)
         {
-            //P, P, K, P, B or K, K, B, K, P
             if (moveNum == 0)
-                moves.Add(Random.Range(1, 3)); //kick or punch
-            else if (moveNum == 1)
-                moves.Add(moves[0]); //then do the same thing
-            else if (moveNum == 2)
-                moves.Add(moves[0]+1); //then swap: punch --> kick, kick --> block
-            else if (moveNum == 3)
-                moves.Add(moves[0]); //back to the first
-            else
-                moves.Add((moves[0]+1)%3+1); //play the last unplayed option: punch --> block, kick --> punch
+            {
+                if (moves5 == moves5Kick)
+                    moves5 = moves5Punch;
+                else if (moves5 == moves5Punch)
+                    moves5 = moves5Kick;
+                else
+                {
+                    if (Random.Range(0.0f, 1.0f) > 0.5f)
+                        moves5 = moves5Kick;
+                    else
+                        moves5 = moves5Punch;
+                }
+            }
+            moves.Add(moves5[moveNum]);
         }
     }
 
@@ -224,7 +232,7 @@ public class GameManager : MonoBehaviour
         {
             enemyTxt.GetComponent<CanvasGroup>().alpha = 1-i;
             buttons.transform.GetChild(n-1).GetComponent<Image>().color = Color.Lerp(buttonColor, Color.white, i);
-            yield return new WaitForSeconds(0.01f);
+            yield return new WaitForSeconds(0.008f);
         }
         enemyTxt.GetComponent<CanvasGroup>().alpha = 0;
         if (moveNum < fightLengths[fightNum])
