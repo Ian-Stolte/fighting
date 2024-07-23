@@ -14,12 +14,12 @@ public class GameManager : MonoBehaviour
     private int[] moves5;
     
     private List<int> moves = new List<int>();
-    private int[] fightLengths = new int[]{5, 8, 6, 10, 5};
-    private string[] fightStart = new string[]{"\"Hey, this is my first fight, so go easy on me!\"", "Your opponent just stares at you.", "Your opponent bows:** \"Good luck.\"", "\"I won't kick if you don't, alright?\"", "Your opponent is making faces.*** Perhaps to distract you?"};
-    private string[] victory/*enemy victory*/ = new string[]{"\"Yay, I won!\"", "She leaves without a word.", "\"Good fight.\"", "\"Guess the mind games worked...\"", "She laughs and skips away."};
-    private string[] defeat/*enemy defeat*/ = new string[]{"\"Aww, that was mean!\"", "She leaves without a word.", "\"Impressive.* Thank you for the fight.\"", "<sigh>*** \"You're too good.\"", "She sticks her tongue out at you."};
-    private string[] perfect/*enemy wins 0 rounds*/ = new string[]{"\"That was extra mean!!\"", "She limps away, eyes downcast.", "\"You are a true master*.*.*.* thank you for the humbling.\"", "\"What the hell?!** It's like you knew exactly what I was going to do!\"", "You see that she is now crying."};
-    private string[] pronouns = new string[]{"He", "She", "He", "They", "She"};
+    private int[] fightLengths = new int[]{5, 8, 6, 10, 5, 8};
+    private string[] fightStart = new string[]{"\"Hey, this is my first fight, so go easy on me!\"", "Your opponent just stares at you.", "Your opponent bows:** \"Good luck.\"", "\"I won't kick if you don't, alright?\"", "Your opponent is making faces.*** Perhaps to distract you?", "Your opponent is mimicking you as you warm up.** It's unsettling."};
+    private string[] victory/*enemy victory*/ = new string[]{"\"Yay, I won!\"", "She leaves without a word.", "\"Good fight.\"", "\"Guess the mind games worked...\"", "She laughs and skips away.", "She mirrors the disappointment on your face, as if mocking you."};
+    private string[] defeat/*enemy defeat*/ = new string[]{"\"Aww, that was mean!\"", "She leaves without a word.", "\"Impressive.* Thank you for the fight.\"", "<sigh>*** \"You're too good.\"", "She sticks her tongue out at you.", "She imitates your victory celebration, turning it into something ridiculous."};
+    private string[] perfect/*enemy wins 0 rounds*/ = new string[]{"\"That was extra mean!!\"", "She limps away, eyes downcast.", "\"You are a true master*.*.*.* thank you for the humbling.\"", "\"What the hell?!** It's like you knew exactly what I was going to do!\"", "You see that she is now crying.", "She finally stops copying you.*** You breathe a sigh of relief." };
+    private string[] pronouns = new string[]{"He", "She", "He", "They", "She", "She"};
 
     private int playerScore;
     private TMPro.TextMeshProUGUI playerScoreTxt;
@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour
     private bool hasKicked;
     private int startingMove;
     private bool wonLast; //whether enemy won the last round
+    private int lastPlayerMove;
 
     private IEnumerator dialogueCor;
 
@@ -188,6 +189,13 @@ public class GameManager : MonoBehaviour
             }
             moves.Add(moves5[moveNum]);
         }
+        else if (fightNum == 5)
+        {
+            if (moveNum == 0)
+                moves.Add(3);
+            else
+                moves.Add(lastPlayerMove);
+        }
     }
 
     public void ChooseMove(int n)
@@ -217,6 +225,7 @@ public class GameManager : MonoBehaviour
         playerBoxes.transform.GetChild(moveNum).GetChild(2).GetComponent<TMPro.TextMeshProUGUI>().text = IntToChar(n);
         enemyBoxes.transform.GetChild(moveNum).GetChild(2).GetComponent<TMPro.TextMeshProUGUI>().text = IntToChar(moves[moveNum]);
         moveNum++;
+        lastPlayerMove = n;
         StartCoroutine(ShowResult(n));
     }
 
