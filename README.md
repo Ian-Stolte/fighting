@@ -1,2 +1,2 @@
 # fighting
-An RPS fighting minigame.
+A Rock-Paper-Scissors fighting minigame.
