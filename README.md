@@ -1,2 +1,2 @@
 # fighting
-A Rock-Paper-Scissors fighting minigame.
+A Rock-Paper-Scissors fighting minigame, completed in just 6 hours.
